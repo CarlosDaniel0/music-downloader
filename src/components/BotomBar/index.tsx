@@ -3,5 +3,6 @@ interface BottomBarProps {
 }
 
 export default function BottomBar(props: BottomBarProps) {
+  console.log(props)
   return (<></>)
 }

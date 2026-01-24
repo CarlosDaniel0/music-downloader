@@ -12,15 +12,15 @@ export default function Player(props: PlayerProps) {
   const mediaSourceRef = useRef<MediaSource>(null);
   const sourceBufferRef = useRef<SourceBuffer>(null);
 
-  const changeVolume = (percent: number) => {
-    if (!audioRef.current) return
-    audioRef.current.volume = percent / 100
-  }
+  // const changeVolume = (percent: number) => {
+  //   if (!audioRef.current) return
+  //   audioRef.current.volume = percent / 100
+  // }
 
-  const changeProgress = (seconds: number) => {
-    if (!audioRef.current) return
-    audioRef.current.currentTime = seconds
-  }
+  // const changeProgress = (seconds: number) => {
+  //   if (!audioRef.current) return
+  //   audioRef.current.currentTime = seconds
+  // }
 
   const handleAudio = (res: AudioStream) => {
     const { content, duration, end } = res;
