@@ -10,6 +10,7 @@ import { WebSocket, WebSocketServer } from "ws";
 import { Socket } from "node:net";
 import { randomUUID } from "node:crypto";
 import { WebsocketClient } from "@/utils/types";
+import { networkInterfaces } from "node:os";
 
 const dev = process.env.NODE_ENV !== "production";
 const nextApp = next({ dev });
@@ -20,7 +21,7 @@ nextApp.prepare().then(() => {
   const server: Server = createServer(
     (req: IncomingMessage, res: ServerResponse) => {
       handle(req, res, parse(req.url || "", true));
-    }
+    },
   );
 
   const sendServers = () => {
@@ -35,8 +36,8 @@ nextApp.prepare().then(() => {
               execution: "servers",
               result: websockets.filter((w) => w.role === "server"),
             },
-          })
-        )
+          }),
+        ),
       );
   };
 
@@ -44,6 +45,16 @@ nextApp.prepare().then(() => {
     if (client.readyState === WebSocket.OPEN) {
       client.send(message, { binary: isBinary });
     }
+  };
+
+  const getIPv4 = () => {
+    const interfaces = networkInterfaces();
+    for (const name of Object.keys(interfaces)) {
+      for (const inter of interfaces[name]!) {
+        if (inter.family === "IPv4" && !inter.internal) return inter.address;
+      }
+    }
+    return "10.0.0.79";
   };
 
   const wss = new WebSocketServer({ noServer: true });
@@ -57,7 +68,7 @@ nextApp.prepare().then(() => {
         origin: "ws",
         target: "",
         data: { execution: "id", result: id },
-      })
+      }),
     );
 
     ws.on("message", (message: Buffer, isBinary: boolean) => {
@@ -85,7 +96,7 @@ nextApp.prepare().then(() => {
 
     ws.on("close", () => {
       const index = websockets.findIndex(
-        (websocket) => websocket.client === ws
+        (websocket) => websocket.client === ws,
       );
       if (index !== -1) {
         console.log(`Client disconnected: ${websockets[index].role}`);
@@ -111,6 +122,6 @@ nextApp.prepare().then(() => {
 
   server.listen(3000);
   console.log(
-    "Server is running 🚀 \n    http://10.0.0.79:3000\n    http://localhost:3000"
+    `Server is running 🚀 \n    http://${getIPv4()}:3000\n    http://localhost:3000`,
   );
 });
